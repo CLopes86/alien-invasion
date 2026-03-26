@@ -1,0 +1,14 @@
+# Compiled output
+build/
+*.o
+*.out
+
+# Executável
+alien-invasion
+
+# VS Code
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
