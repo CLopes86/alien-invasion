@@ -1,4 +1,9 @@
-#include "bibSistema.h" // inclusao das bibliotecas de sistema
+#include "bibSistema.h" 
+#include "Nave.h"
+
+// objeto global da classe Nave
+// tem de ser global porque a callback de desenho nao aceita parametros
+Nave* myNave = new Nave();
 
 // callback do teclado - chamada automaticamente quando uma tecla e premida
 // key = codigo da tecla premida (0-255)
@@ -18,8 +23,8 @@ void draw(void) {
     glMatrixMode(GL_MODELVIEW);            // seleciona a matriz de modelacao
     glLoadIdentity();                      // reset da matriz de modelacao
 
-    // aqui vamos chamar o metodo de desenho da nave
-    // myNave->desenhar();
+    // chama o metodo de desenho da nave
+    myNave->desenhar();
 
     glutSwapBuffers(); // troca os buffers - mostra o que foi desenhado
 }
