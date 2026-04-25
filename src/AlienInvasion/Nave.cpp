@@ -20,7 +20,7 @@ Nave :: ~Nave() {
 /**
  * Metodo privado drawBody
  * Desenha o corpo da nave - um rectangulo centrado na origem
- * Vertices definidos em sentido contrario aos ponteiros do relogio
+ * A nave esta orientada para a esquerda
  */
 void Nave:: drawBody(void) {
 
@@ -31,7 +31,8 @@ void Nave:: drawBody(void) {
     // inicia o bloco de desenho para quadrilateros
     glBegin(GL_QUADS); {
 
-         // vertices em sentido contrario aos ponteiros do relogio
+           // corpo centrado na origem
+        // orientado horizontalmente para a esquerda
          glVertex2f(-1.0f,  1.0f); // vertice 0 - canto superior esquerdo
          glVertex2f(-1.0f, -1.0f); // vertice 1 - canto inferior esquerdo
          glVertex2f( 1.0f, -1.0f); // vertice 2 - canto inferior direito
@@ -56,9 +57,9 @@ void Nave::drawCockpit(void) {
 
         // define os 3 vertices do cockpit
         // em sentido contrario aos ponteiros do relogio
-        glVertex2f(0.0f, 3.0f); // vertice 0 - ponta do topo
+        glVertex2f(-3.0f, 0.0f); // vertice 0 - ponta do topo
         glVertex2f(-1.0f, 1.0f); // vertice 1 - base esquerda
-        glVertex2f(1.0f, 1.0f);
+        glVertex2f(-1.0f, -1.0f); // vertice 2 - base inferior (base esquerda do corpo)
 
     } glEnd(); // fecha o bloco de desenho
 }
@@ -77,11 +78,10 @@ void Nave::drawLeftWing(void) {
      // inicia o bloco de desenho para triangulos
      glBegin(GL_TRIANGLES); {
 
-        // define os 3 vertices da asa esquerda
-        // em sentido contrario aos ponteiros do relogio
-        glVertex2f(-1.0f, 0.0f); // vertice 0 - onde liga ao corpo
-        glVertex2f(-3.0f, -1.0f); // vertice 1 - ponta da asa
-        glVertex2f(-1.0f, -1.0f); // vertice 2 - canto inferior interior
+          // asa de cima - em Y positivo
+        glVertex2f(1.0f, 1.0f); // vertice 0 - onde liga ao corpo
+        glVertex2f(0.5f, 2.5f); // vertice 1 - ponta da asa
+        glVertex2f(-1.0f, 1.0f); // vertice 2 - canto inferior interior
 
      } glEnd();  // fecha o bloco de desenho
 }
@@ -103,9 +103,9 @@ void Nave:: drawRightWing(void) {
 
         // define os 3 vertices da asa direita
         // em sentido contrario aos ponteiros do relogio
-        glVertex2f(1.0f,0.0f); // vertice 0 - onde liga ao corpo
-        glVertex2f(1.0f, -1.0f); // vertice 1 - canto inferior interior
-        glVertex2f(3.0f, -1.0f); // vertice 2 - ponta da asa
+        glVertex2f(1.0f,-1.0f); // vertice 0 - onde liga ao corpo
+        glVertex2f(0.5f, -2.5f); // vertice 1 - canto inferior interior
+        glVertex2f(-1.0f, -1.0f); // vertice 2 - ponta da asa
 
     } glEnd(); // fecha o bloco de desenho
 }
@@ -113,29 +113,45 @@ void Nave:: drawRightWing(void) {
 /**
  * Metodo publico desenhar
  * Desenha a nave completa invocando os 4 metodos privados
- * Este e o unico metodo que o main.cpp vai chamar
+ * Utiliza transformacoes geometricas para:
+ * - rodar a nave -90 graus (cockpit aponta para a esquerda)
+ * - posicionar a nave do lado direito do ecra
+ * Utiliza acumulacao controlada com glPushMatrix/glPopMatrix
  */
-void Nave:: desenhar(void) {
+void Nave::desenhar(void) {
 
-    // desenha o corpo da nave na origem (0,0)
-    glPushMatrix(); // guarda o estado atual da matriz
-        drawBody(); // desenha o corpo centrado na origem
-    glPopMatrix();  // restaura o estado anterior
+    // guarda o estado da matriz MODELVIEW antes de qualquer
+    // transformacao da nave - acumulacao controlada
+    glPushMatrix();
 
 
-      // desenha o cockpit por cima do corpo
-    glPushMatrix();          // guarda o estado atual da matriz
-        drawCockpit();       // desenha o cockpit - ja esta posicionado corretamente
-    glPopMatrix();           // restaura o estado anterior
+         // translacao - move a nave para o lado direito do ecra
+        // x=15 coloca a nave do lado direito do sistema de coordenadas (-20 a 20)
+        glTranslatef(15.0f, 0.0f, 0.0f);
 
-    // desenha a asa esquerda
-    glPushMatrix();          // guarda o estado atual da matriz
-        drawLeftWing();      // desenha a asa esquerda - ja esta posicionada corretamente
-    glPopMatrix();           // restaura o estado anterior
+        
 
-    // desenha a asa direita
-    glPushMatrix();          // guarda o estado atual da matriz
-        drawRightWing();     // desenha a asa direita - ja esta posicionada corretamente
-    glPopMatrix();           // restaura o estado anterior
+        // desenha o corpo da nave
+        glPushMatrix();
+            drawBody();
+        glPopMatrix();
 
+        // desenha o cockpit
+        glPushMatrix();
+            drawCockpit();
+        glPopMatrix();
+
+        // desenha a asa esquerda
+        glPushMatrix();
+            drawLeftWing();
+        glPopMatrix();
+
+        // desenha a asa direita
+        glPushMatrix();
+            drawRightWing();
+        glPopMatrix();
+
+    // restaura o estado da matriz MODELVIEW
+    // a cena fica exatamente como estava antes de desenhar a nave
+    glPopMatrix();
 }
